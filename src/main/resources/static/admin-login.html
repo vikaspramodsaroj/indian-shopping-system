@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administrator Portal Login - BharatBazaar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --admin-color: #ef4444;
+      --admin-hover: #dc2626;
+      --bg: #090d16;
+      --card-bg: #131b2e;
+      --border: #22304d;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .admin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 440px;
+      padding: 2.2rem;
+      box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.15);
+      position: relative;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.3rem 0.8rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.8rem;
+    }
+    .brand-header {
+      text-align: center;
+      margin-bottom: 1.8rem;
+    }
+    .brand-header h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-top: 0.3rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.2rem;
+    }
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .form-group input {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 0.9rem;
+      color: var(--text);
+      outline: none;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus {
+      border-color: var(--admin-color);
+    }
+    .btn {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--admin-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn:hover { background: var(--admin-hover); }
+    .quick-fill {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px dashed var(--admin-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-top: 1.2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #fca5a5;
+      cursor: pointer;
+    }
+    .quick-fill:hover { background: rgba(239, 68, 68, 0.15); }
+    .footer-links {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .footer-links a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-links a:hover { text-decoration: underline; }
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #10b981;
+      color: white;
+      padding: 0.8rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+      z-index: 100;
+    }
+    .toast-error { background: #ef4444 !important; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-card">
+    <div class="brand-header">
+      <div class="badge">🛡️ Internal System Access</div>
+      <h2>BharatBazaar Admin Portal</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem;">
+        Authorize to manage catalog, inventory, and order dispatch.
+      </p>
+    </div>
+
+    <form onsubmit="handleAdminLogin(event)">
+      <div class="form-group">
+        <label>Admin Username / Email</label>
+        <input type="text" id="adminUser" placeholder="e.g. admin" required />
+      </div>
+
+      <div class="form-group">
+        <label>Admin Secret Key / Password</label>
+        <input type="password" id="adminPass" placeholder="e.g. admin123" required />
+      </div>
+
+      <button type="submit" class="btn">
+        <span>🔐 Authenticate & Open Dashboard</span>
+      </button>
+    </form>
+
+    <div class="quick-fill" onclick="quickFillAdmin()">
+      🔑 <strong>Quick Fill Demo Admin</strong>: User: <code>admin</code> | Pass: <code>admin123</code>
+    </div>
+
+    <div class="footer-links">
+      Are you a shopper? <br/>
+      <a href="/login.html">Switch to Customer Login &rarr;</a>
+    </div>
+
+    <div class="footer-links" style="margin-top: 0.8rem;">
+      <a href="/">&larr; Back to Public Storefront</a>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    function quickFillAdmin() {
+      document.getElementById('adminUser').value = 'admin';
+      document.getElementById('adminPass').value = 'admin123';
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.className = isError ? 'toast-error' : '';
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('adminUser').value.trim();
+      const password = document.getElementById('adminPass').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          if (data.role !== 'ADMIN') {
+            showToast('Access Denied: This account does not have Admin privileges!', true);
+            return;
+          }
+          localStorage.setItem('bharat_user', JSON.stringify(data));
+          showToast('Welcome Administrator! Opening Dashboard...');
+          setTimeout(() => {
+            window.location.href = '/admin.html';
+          }, 1000);
+        } else {
+          showToast(data.message || 'Invalid administrator credentials', true);
+        }
+      } catch (err) {
+        showToast('Server connection failed: ' + err.message, true);
+      }
+    }
+  </script>
+</body>
+</html>
