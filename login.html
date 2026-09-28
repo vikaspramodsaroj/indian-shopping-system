@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Login & Register - BharatBazaar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #f97316;
+      --primary-dark: #ea580c;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .auth-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 440px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .brand-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .brand-header a {
+      text-decoration: none;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .brand-header a span {
+      background: linear-gradient(135deg, #f97316, #fbbf24, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tab-group {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+      margin-bottom: -2px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.1rem;
+    }
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .form-group input {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      color: var(--text);
+      outline: none;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus {
+      border-color: var(--primary);
+    }
+    .btn {
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .quick-fill {
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px dashed var(--primary);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--primary);
+      cursor: pointer;
+    }
+    .quick-fill:hover { background: rgba(249, 115, 22, 0.2); }
+    .switch-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .switch-link a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .switch-link a:hover { text-decoration: underline; }
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #10b981;
+      color: white;
+      padding: 0.8rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+      z-index: 100;
+    }
+    .toast-error { background: #ef4444 !important; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <div class="brand-header">
+      <a href="/">🛍️ <span>BharatBazaar</span></a>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem;">Customer Account Portal</p>
+    </div>
+
+    <div class="tab-group">
+      <button class="tab-btn active" id="loginTab" onclick="setMode('login')">Customer Login</button>
+      <button class="tab-btn" id="registerTab" onclick="setMode('register')">New Registration</button>
+    </div>
+
+    <form onsubmit="handleSubmit(event)">
+      <div class="form-group" id="fullNameGroup" style="display: none;">
+        <label>Full Name</label>
+        <input type="text" id="fullName" placeholder="e.g. Vikas Saroj" />
+      </div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="e.g. vikas" required />
+      </div>
+
+      <div class="form-group" id="emailGroup" style="display: none;">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="e.g. vikas@example.in" />
+      </div>
+
+      <div class="form-group" id="phoneGroup" style="display: none;">
+        <label>Mobile Number</label>
+        <input type="tel" id="phoneNumber" placeholder="e.g. +91 98765 43210" />
+      </div>
+
+      <div class="form-group" id="addressGroup" style="display: none;">
+        <label>Delivery Address</label>
+        <input type="text" id="address" placeholder="Flat No, Street, City, State, PIN" />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter password (min 6 characters)" required />
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Sign In to BharatBazaar</button>
+    </form>
+
+    <div class="switch-link">
+      🛡️ Internal Administrator Access: <br/>
+      <a href="/admin.html">Click here to access Admin Console &rarr;</a>
+    </div>
+
+    <div class="switch-link" style="margin-top: 0.8rem;">
+      <a href="/">&larr; Back to Shopping Store</a>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let mode = 'login';
+
+    function setMode(newMode) {
+      mode = newMode;
+      const isLogin = mode === 'login';
+      document.getElementById('loginTab').className = isLogin ? 'tab-btn active' : 'tab-btn';
+      document.getElementById('registerTab').className = !isLogin ? 'tab-btn active' : 'tab-btn';
+      document.getElementById('fullNameGroup').style.display = isLogin ? 'none' : 'flex';
+      document.getElementById('emailGroup').style.display = isLogin ? 'none' : 'flex';
+      document.getElementById('phoneGroup').style.display = isLogin ? 'none' : 'flex';
+      document.getElementById('addressGroup').style.display = isLogin ? 'none' : 'flex';
+      document.getElementById('submitBtn').innerText = isLogin ? 'Sign In to BharatBazaar' : 'Create Free Account';
+      if (!isLogin) document.getElementById('email').required = true;
+      else document.getElementById('email').required = false;
+    }
+
+    function quickFillCustomer() {
+      setMode('login');
+      document.getElementById('username').value = 'vikas';
+      document.getElementById('password').value = 'user123';
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.className = isError ? 'toast-error' : '';
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const email = document.getElementById('email').value.trim();
+      const fullName = document.getElementById('fullName').value.trim();
+      const phoneNumber = document.getElementById('phoneNumber').value.trim();
+      const address = document.getElementById('address').value.trim();
+
+      const url = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
+      const payload = mode === 'login' 
+        ? { username, password } 
+        : { username, password, email, fullName, phoneNumber, address, role: 'USER' };
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('bharat_user', JSON.stringify(data));
+          showToast(data.message || 'Login successful!');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1000);
+        } else {
+          showToast(data.message || 'Authentication error', true);
+        }
+      } catch (err) {
+        showToast('Server connection failed: ' + err.message, true);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administrator Console - BharatBazaar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="/api-bridge.js"></script>
+  <style>
+    :root {
+      --gold: #d97706;
+      --gold-light: #fbbf24;
+      --gold-gradient: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+      --emerald: #10b981;
+      --emerald-dark: #059669;
+      --primary: #ef4444;
+      --primary-hover: #dc2626;
+      --bg: #060913;
+      --bg-surface: #0c1222;
+      --bg-card: #111a2f;
+      --bg-card-hover: #17233f;
+      --border: #1e2c4a;
+      --border-gold: rgba(245, 158, 11, 0.3);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, h4, .brand-title { font-family: 'Outfit', 'Cinzel', sans-serif; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(217, 119, 6, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 90% 20%, rgba(239, 68, 68, 0.05) 0%, transparent 45%);
+    }
+
+    /* Top Strip */
+    .top-strip {
+      background: linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #10b981 100%);
+      height: 3px;
+    }
+
+    /* Header */
+    header {
+      background: rgba(12, 18, 34, 0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 2.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      gap: 1.5rem;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-seal {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--gold-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+    }
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+    .admin-tag {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.58rem 1.15rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      text-decoration: none;
+    }
+    .btn-gold {
+      background: var(--gold-gradient);
+      color: #060913;
+      font-weight: 800;
+    }
+    .btn-gold:hover { transform: translateY(-1px); opacity: 0.95; }
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-glass:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--border-gold); }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
+
+    /* Layout */
+    .admin-main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem 2.2rem;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    /* Stats Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.4rem;
+    }
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .metric-card:hover { transform: translateY(-2px); border-color: var(--border-gold); }
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gold-gradient);
+    }
+    .metric-card.green::after { background: var(--emerald); }
+    .metric-card.cyan::after { background: #38bdf8; }
+    .metric-card.purple::after { background: #a855f7; }
+
+    .metric-label { font-size: 0.82rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .metric-value { font-size: 1.9rem; font-weight: 800; color: #f8fafc; }
+    .metric-sub { font-size: 0.8rem; color: var(--emerald); font-weight: 600; }
+
+    /* Nav Tabs */
+    .tabs-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      gap: 0.6rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+    }
+    .tabs-bar::-webkit-scrollbar { display: none; }
+    .tab-item {
+      padding: 0.8rem 1.4rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tab-item:hover { color: var(--text); }
+    .tab-item.active {
+      color: var(--gold-light);
+      border-bottom-color: var(--gold);
+      background: rgba(245, 158, 11, 0.06);
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+
+    /* Content Cards */
+    .content-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 1.2rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .panel-title { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
+    .panel-actions { display: flex; align-items: center; gap: 0.8rem; }
+
+    .search-input {
+      background: #060913;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 1rem;
+      color: var(--text);
+      outline: none;
+      font-size: 0.88rem;
+      min-width: 240px;
+    }
+    .search-input:focus { border-color: var(--gold); }
+
+    /* Tables */
+    .table-responsive { width: 100%; overflow-x: auto; }
+    .table-ops { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+    .table-ops th {
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 0.95rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .table-ops td {
+      padding: 0.95rem 1.2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: middle;
+    }
+    .table-ops tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    /* Badges */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .pill-admin { background: rgba(245, 158, 11, 0.15); color: var(--gold-light); border: 1px solid var(--border-gold); }
+    .pill-user { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-delivered { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .pill-shipped { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .pill-confirmed { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .pill-pending { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+    .pill-cancelled { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-gold);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    .modal-top {
+      padding: 1.2rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .modal-top h3 { font-size: 1.3rem; font-weight: 800; }
+    .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.6rem; cursor: pointer; }
+    .modal-inner { padding: 1.6rem; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1.1rem;
+    }
+    .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
+    .form-group input, .form-group textarea, .form-group select {
+      background: #060913;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.72rem 1rem;
+      color: var(--text);
+      outline: none;
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--emerald);
+      color: white;
+      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      display: none;
+      z-index: 200;
+      box-shadow: var(--shadow);
+    }
+    .toast-error { background: #ef4444 !important; }
+  </style>
+</head>
+<body>
+
+  <div class="top-strip"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="/admin.html" class="brand-area">
+      <div class="brand-seal">🪷</div>
+      <div class="brand-title">BharatBazaar <span style="color: var(--gold-light); font-size: 1.1rem;">Ops</span></div>
+      <span class="admin-tag">Internal Console</span>
+    </a>
+
+    <div class="header-links">
+      <a href="/" class="btn btn-glass" target="_blank">
+        <span>🛍️ Customer Storefront &rarr;</span>
+      </a>
+      <div id="adminHeaderBadge" style="display: flex; align-items: center; gap: 0.8rem;">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="admin-main">
+    <!-- Top Metrics Overview -->
+    <div class="stats-row">
+      <div class="metric-card cyan">
+        <span class="metric-label">Gross Revenue</span>
+        <div class="metric-value" id="statRevenue">₹0.00</div>
+        <div class="metric-sub">↑ Verified Pan-India Orders</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Consignments & Orders</span>
+        <div class="metric-value" id="statOrders">0</div>
+        <div class="metric-sub" id="statPendingOrders">0 Pending Dispatch</div>
+      </div>
+      <div class="metric-card green">
+        <span class="metric-label">Registered Accounts</span>
+        <div class="metric-value" id="statUsers">0</div>
+        <div class="metric-sub" id="statUserMeta">0 Customer | 4 Admins</div>
+      </div>
+      <div class="metric-card purple">
+        <span class="metric-label">Catalog Products</span>
+        <div class="metric-value" id="statProducts">0</div>
+        <div class="metric-sub" id="statLowStock">0 Low Stock Warnings</div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs-bar">
+      <button class="tab-item active" id="tabUsersBtn" onclick="switchAdminTab('users')">
+        <span>👥 Registered Users & Registration Data</span>
+      </button>
+      <button class="tab-item" id="tabOrdersBtn" onclick="switchAdminTab('orders')">
+        <span>🚚 Order Management & Consignment Tracking</span>
+      </button>
+      <button class="tab-item" id="tabProductsBtn" onclick="switchAdminTab('products')">
+        <span>📦 Product Catalog & Stock Inventory</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: Registered Users & Registration Data -->
+    <section id="tabUsers" class="content-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">👥 User & Registration Database</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
+            Full profile details captured during registration: Name, Phone, Delivery Address, Role, and Order Records.
+          </p>
+        </div>
+        <div class="panel-actions">
+          <input type="text" class="search-input" id="userSearch" placeholder="Filter users by name, email, phone..." oninput="filterUserTable(this.value)" />
+          <button class="btn btn-gold" onclick="openAddUserModal()">
+            <span>➕ Register New User / Admin</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table-ops">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Full Name & Username</th>
+              <th>Role</th>
+              <th>Contact Details</th>
+              <th>Delivery / Billing Address</th>
+              <th>Registered On</th>
+              <th>Orders Placed</th>
+              <th>Total Spent (₹)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr>
+              <td colspan="9" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                Loading user database records...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: Orders & Consignments -->
+    <section id="tabOrders" class="content-panel" style="display: none;">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">🚚 Consignment & Order Fulfillment</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
+            Live dispatch workflow. Update courier tracking status across 5 fulfillment milestones.
+          </p>
+        </div>
+        <div class="panel-actions">
+          <input type="text" class="search-input" id="orderSearch" placeholder="Search by Tracking ID or recipient..." oninput="filterOrderTable(this.value)" />
+          <button class="btn btn-glass" onclick="loadOrders()">
+            <span>🔄 Refresh Orders</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table-ops">
+          <thead>
+            <tr>
+              <th>Tracking ID</th>
+              <th>Date Placed</th>
+              <th>Recipient</th>
+              <th>Delivery Address</th>
+              <th>Payment & AWB</th>
+              <th>Total (₹)</th>
+              <th>Current Status</th>
+              <th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                Loading customer consignments...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: Products Catalog -->
+    <section id="tabProducts" class="content-panel" style="display: none;">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">📦 Product Catalog & Inventory Levels</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
+            Add, edit, or adjust inventory for authentic Indian heritage collections.
+          </p>
+        </div>
+        <div class="panel-actions">
+          <input type="text" class="search-input" id="prodSearch" placeholder="Search products..." oninput="filterProdTable(this.value)" />
+          <button class="btn btn-gold" onclick="openAddProductModal()">
+            <span>➕ Add New Product</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table-ops">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price (₹)</th>
+              <th>Inventory Status</th>
+              <th>Stock Qty</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                Loading catalog inventory...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal: Secure Admin Login -->
+  <div class="modal-backdrop" id="adminAuthModal">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-top">
+        <h3>🔐 Administrator Authentication</h3>
+      </div>
+      <div class="modal-inner">
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.2rem;">
+          Authorized personnel only. Enter administrator credentials to proceed.
+        </p>
+
+        <form onsubmit="handleAdminLogin(event)">
+          <div class="form-group">
+            <label>Admin ID / Username</label>
+            <input type="text" id="adminUser" placeholder="Enter Admin Username" required />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="adminPass" placeholder="Enter Password" required />
+          </div>
+          <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 0.5rem;">
+            Authenticate & Open Console
+          </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.4rem;">
+          <a href="/" style="color: var(--gold-light); font-size: 0.85rem; text-decoration: none;">&larr; Return to Customer Storefront</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Register New User / Admin -->
+  <div class="modal-backdrop" id="createUserModal">
+    <div class="modal-card">
+      <div class="modal-top">
+        <h3>➕ Register User or Admin</h3>
+        <button class="modal-close" onclick="closeCreateUserModal()">&times;</button>
+      </div>
+      <div class="modal-inner">
+        <form onsubmit="handleCreateUserSubmit(event)">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="newFullName" placeholder="e.g. Ramesh Chandra" required />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+            <div class="form-group">
+              <label>Username *</label>
+              <input type="text" id="newUsername" placeholder="e.g. ramesh_admin" required />
+            </div>
+            <div class="form-group">
+              <label>System Role *</label>
+              <select id="newRole">
+                <option value="USER">Customer (USER)</option>
+                <option value="ADMIN">Administrator (ADMIN)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" id="newEmail" placeholder="e.g. ramesh@indianshopping.in" required />
+            </div>
+            <div class="form-group">
+              <label>Phone Number *</label>
+              <input type="tel" id="newPhone" placeholder="+91 98450 12345" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Delivery / Office Address *</label>
+            <textarea id="newAddress" rows="2" placeholder="Full postal address with PIN" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Initial Password * (Min 6 chars)</label>
+            <input type="password" id="newPassword" placeholder="Enter password" minlength="6" required />
+          </div>
+
+          <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 0.85rem;">
+            Save & Register Profile in Database
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Product -->
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal-card">
+      <div class="modal-top">
+        <h3 id="productModalTitle">Add New Product</h3>
+        <button class="modal-close" onclick="closeProductModal()">&times;</button>
+      </div>
+      <div class="modal-inner">
+        <form onsubmit="handleProductSubmit(event)">
+          <input type="hidden" id="prodEditId" />
+          <div class="form-group">
+            <label>Product Title *</label>
+            <input type="text" id="prodTitle" placeholder="e.g. Kashmiri Pure Pashmina Shawl" required />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+            <div class="form-group">
+              <label>Category *</label>
+              <select id="prodCategory" required>
+                <!-- Categories loaded via JS -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Price (₹) *</label>
+              <input type="number" step="0.01" id="prodPrice" placeholder="e.g. 5499.00" required />
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+            <div class="form-group">
+              <label>Stock Quantity *</label>
+              <input type="number" id="prodStock" placeholder="e.g. 30" required />
+            </div>
+            <div class="form-group">
+              <label>Image URL *</label>
+              <input type="url" id="prodImage" placeholder="https://images.unsplash.com/..." required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description *</label>
+            <textarea id="prodDesc" rows="3" placeholder="Artisanal specifications and heritage details" required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 0.85rem;">
+            Save Product to Catalog
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- JavaScript -->
+  <script>
+    let currentAdmin = null;
+    let allUsers = [];
+    let allOrders = [];
+    let allProducts = [];
+    let allCategories = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      verifyAdminSession();
+      loadCategories();
+      refreshDashboard();
+    });
+
+    // Admin Session Verification
+    function verifyAdminSession() {
+      const stored = localStorage.getItem('bharat_user');
+      if (stored) {
+        try {
+          const u = JSON.parse(stored);
+          if (u.role === 'ADMIN') {
+            currentAdmin = u;
+            renderAdminBadge();
+            return;
+          }
+        } catch(e) {}
+      }
+      document.getElementById('adminAuthModal').classList.add('active');
+    }
+
+    function renderAdminBadge() {
+      const container = document.getElementById('adminHeaderBadge');
+      if (!currentAdmin) return;
+      document.getElementById('adminAuthModal').classList.remove('active');
+
+      const name = currentAdmin.fullName || currentAdmin.username;
+      container.innerHTML = `
+        <div style="text-align: right;">
+          <div style="font-weight: 800; font-size: 0.92rem; color: #f8fafc;">${name}</div>
+          <div style="font-size: 0.75rem; color: var(--gold-light);">ADMIN: @${currentAdmin.username}</div>
+        </div>
+        <button class="btn btn-glass" style="padding: 0.4rem 0.8rem; font-size: 0.78rem;" onclick="adminLogout()">
+          Sign Out
+        </button>
+      `;
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('adminUser').value.trim();
+      const password = document.getElementById('adminPass').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          if (data.role !== 'ADMIN') {
+            showToast('Access Denied: Admin privileges required.', true);
+            return;
+          }
+          currentAdmin = data;
+          localStorage.setItem('bharat_user', JSON.stringify(data));
+          renderAdminBadge();
+          showToast(`Welcome Administrator ${data.fullName || data.username}!`);
+          refreshDashboard();
+        } else {
+          showToast(data.message || 'Invalid credentials', true);
+        }
+      } catch(err) {
+        showToast('Login error: ' + err.message, true);
+      }
+    }
+
+    function adminLogout() {
+      localStorage.removeItem('bharat_user');
+      currentAdmin = null;
+      document.getElementById('adminAuthModal').classList.add('active');
+    }
+
+    // Tabs
+    function switchAdminTab(tab) {
+      ['users', 'orders', 'products'].forEach(t => {
+        const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
+        const sec = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (btn) btn.classList.remove('active');
+        if (sec) sec.style.display = 'none';
+      });
+      const activeBtn = document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}Btn`);
+      const activeSec = document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+      if (activeBtn) activeBtn.classList.add('active');
+      if (activeSec) activeSec.style.display = 'block';
+    }
+
+    // Data Loading
+    async function refreshDashboard() {
+      await Promise.all([loadUsers(), loadOrders(), loadProducts()]);
+      updateMetrics();
+    }
+
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories');
+        if (res.ok) {
+          allCategories = await res.json();
+          const sel = document.getElementById('prodCategory');
+          if (sel) {
+            sel.innerHTML = allCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+          }
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    // USERS
+    async function loadUsers() {
+      try {
+        const res = await fetch('/api/admin/users');
+        if (res.ok) {
+          allUsers = await res.json();
+          renderUserTable(allUsers);
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    function renderUserTable(users) {
+      const tbody = document.getElementById('userTableBody');
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 2rem;">No registered records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = users.map(u => {
+        const isAdm = u.role === 'ADMIN';
+        const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN', {year:'numeric', month:'short', day:'numeric'}) : 'Pre-seeded';
+        const spent = u.totalSpent ? Number(u.totalSpent).toLocaleString('en-IN') : '0.00';
+
+        return `
+          <tr>
+            <td><strong>#${u.id}</strong></td>
+            <td>
+              <div style="font-weight: 700; color: #f8fafc;">${u.fullName || u.username}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">@${u.username}</div>
+            </td>
+            <td>
+              <span class="pill ${isAdm ? 'pill-admin' : 'pill-user'}">
+                ${isAdm ? '🛡️ ADMIN' : '👤 CUSTOMER'}
+              </span>
+            </td>
+            <td>
+              <div>📧 ${u.email}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">
+                ${u.phoneNumber ? `📞 ${u.phoneNumber}` : 'No Phone'}
+              </div>
+            </td>
+            <td style="max-width: 250px; font-size: 0.82rem; color: var(--text-muted);">${u.address || 'Standard Address'}</td>
+            <td style="white-space: nowrap; font-size: 0.82rem;">${dateStr}</td>
+            <td><strong>${u.orderCount || 0}</strong></td>
+            <td style="color: #38bdf8; font-weight: 800;">₹${spent}</td>
+            <td>
+              ${isAdm ? `
+                <span style="color: var(--text-muted); font-size: 0.75rem;">Protected</span>
+              ` : `
+                <button class="btn btn-glass" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; color: #f87171;" onclick="deleteUserRecord(${u.id}, '${u.username}')">
+                  🗑️ Delete
+                </button>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterUserTable(val) {
+      const q = val.trim().toLowerCase();
+      if (!q) { renderUserTable(allUsers); return; }
+      renderUserTable(allUsers.filter(u => 
+        (u.username && u.username.toLowerCase().includes(q)) ||
+        (u.fullName && u.fullName.toLowerCase().includes(q)) ||
+        (u.email && u.email.toLowerCase().includes(q)) ||
+        (u.phoneNumber && u.phoneNumber.toLowerCase().includes(q)) ||
+        (u.role && u.role.toLowerCase().includes(q))
+      ));
+    }
+
+    function openAddUserModal() { document.getElementById('createUserModal').classList.add('active'); }
+    function closeCreateUserModal() { document.getElementById('createUserModal').classList.remove('active'); }
+
+    async function handleCreateUserSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        fullName: document.getElementById('newFullName').value.trim(),
+        username: document.getElementById('newUsername').value.trim(),
+        role: document.getElementById('newRole').value,
+        email: document.getElementById('newEmail').value.trim(),
+        phoneNumber: document.getElementById('newPhone').value.trim(),
+        address: document.getElementById('newAddress').value.trim(),
+        password: document.getElementById('newPassword').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          showToast(`Registered new ${payload.role}: ${payload.fullName}!`);
+          closeCreateUserModal();
+          await loadUsers();
+          updateMetrics();
+        } else {
+          const err = await res.json();
+          showToast(err.message || 'Failed to create user', true);
+        }
+      } catch(err) { showToast('Error: ' + err.message, true); }
+    }
+
+    async function deleteUserRecord(id, username) {
+      if (!confirm(`Delete user "${username}" (ID #${id})?`)) return;
+      try {
+        const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast(`User ${username} deleted.`);
+          await loadUsers();
+          updateMetrics();
+        }
+      } catch(err) { showToast('Delete failed', true); }
+    }
+
+    // ORDERS
+    async function loadOrders() {
+      try {
+        const res = await fetch('/api/admin/orders');
+        if (res.ok) {
+          allOrders = await res.json();
+          renderOrdersTable(allOrders);
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    function renderOrdersTable(orders) {
+      const tbody = document.getElementById('ordersTableBody');
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem;">No orders found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(o => {
+        const dateStr = new Date(o.orderDate).toLocaleString('en-IN');
+        const st = (o.status || 'PENDING').toUpperCase();
+
+        return `
+          <tr>
+            <td><strong style="color: var(--gold-light);">#BB-IND-2026-${o.id}</strong></td>
+            <td style="font-size: 0.82rem; white-space: nowrap;">${dateStr}</td>
+            <td>
+              <div style="font-weight: 700;">${o.customerName || (o.user ? o.user.username : 'Customer')}</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">${o.customerEmail || ''}</div>
+            </td>
+            <td style="max-width: 250px; font-size: 0.82rem; color: var(--text-muted);">${o.shippingAddress || 'Standard Address'}</td>
+            <td>
+              <div style="font-weight: 700; font-size: 0.85rem;">${o.paymentMethod || 'Online'}</div>
+              <div style="font-size: 0.75rem; color: #38bdf8;">AWB: DEL-IND-${o.id}84920</div>
+            </td>
+            <td style="color: #38bdf8; font-weight: 800; font-size: 1rem;">₹${Number(o.totalAmount).toLocaleString('en-IN')}</td>
+            <td><span class="pill pill-${st.toLowerCase()}">${st}</span></td>
+            <td>
+              <select style="background: #060913; border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.35rem 0.5rem; font-size: 0.8rem;" onchange="updateStatus(${o.id}, this.value)">
+                <option value="PENDING" ${st==='PENDING'?'selected':''}>PENDING</option>
+                <option value="CONFIRMED" ${st==='CONFIRMED'?'selected':''}>CONFIRMED</option>
+                <option value="PROCESSING" ${st==='PROCESSING'?'selected':''}>PROCESSING</option>
+                <option value="SHIPPED" ${st==='SHIPPED'?'selected':''}>SHIPPED</option>
+                <option value="DELIVERED" ${st==='DELIVERED'?'selected':''}>DELIVERED</option>
+                <option value="CANCELLED" ${st==='CANCELLED'?'selected':''}>CANCELLED</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterOrderTable(val) {
+      const q = val.trim().toLowerCase();
+      if (!q) { renderOrdersTable(allOrders); return; }
+      renderOrdersTable(allOrders.filter(o => 
+        String(o.id).includes(q) ||
+        (o.customerName && o.customerName.toLowerCase().includes(q)) ||
+        (o.status && o.status.toLowerCase().includes(q))
+      ));
+    }
+
+    async function updateStatus(orderId, newStatus) {
+      try {
+        const res = await fetch(`/api/admin/orders/${orderId}/status?status=${newStatus}`, { method: 'PATCH' });
+        if (res.ok) {
+          showToast(`Consignment #BB-IND-2026-${orderId} status: ${newStatus}`);
+          await loadOrders();
+          updateMetrics();
+        }
+      } catch(err) { showToast('Status update failed', true); }
+    }
+
+    // PRODUCTS
+    async function loadProducts() {
+      try {
+        const res = await fetch('/api/products');
+        if (res.ok) {
+          allProducts = await res.json();
+          renderProductsTable(allProducts);
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    function renderProductsTable(prods) {
+      const tbody = document.getElementById('productTableBody');
+      if (prods.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem;">No products found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = prods.map(p => {
+        const isLow = p.stockQuantity < 15;
+        const img = p.imageUrl || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500';
+
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.8rem;">
+                <img src="${img}" style="width: 44px; height: 44px; border-radius: 6px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500'" />
+                <div>
+                  <div style="font-weight: 700; color: #f8fafc;">${p.name}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${p.description || ''}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td><span class="pill" style="background: rgba(245, 158, 11, 0.15); color: var(--gold-light);">${p.category ? p.category.name : 'Heritage'}</span></td>
+            <td style="color: #38bdf8; font-weight: 800;">₹${Number(p.price).toLocaleString('en-IN')}</td>
+            <td><span class="pill ${isLow ? 'pill-cancelled' : 'pill-delivered'}">${isLow ? '⚠️ LOW STOCK' : '✅ HEALTHY'}</span></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <strong>${p.stockQuantity}</strong>
+                <button class="btn btn-glass" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;" onclick="boostStock(${p.id}, 5)">+5</button>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; gap: 0.4rem;">
+                <button class="btn btn-glass" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="openEditProductModal(${p.id})">✏️ Edit</button>
+                <button class="btn btn-glass" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; color: #f87171;" onclick="deleteProduct(${p.id}, '${p.name}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterProdTable(val) {
+      const q = val.trim().toLowerCase();
+      if (!q) { renderProductsTable(allProducts); return; }
+      renderProductsTable(allProducts.filter(p => 
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.description && p.description.toLowerCase().includes(q)) ||
+        (p.category && p.category.name.toLowerCase().includes(q))
+      ));
+    }
+
+    function openAddProductModal() {
+      document.getElementById('prodEditId').value = '';
+      document.getElementById('productModalTitle').innerText = 'Add New Product';
+      document.getElementById('prodTitle').value = '';
+      document.getElementById('prodPrice').value = '';
+      document.getElementById('prodStock').value = '';
+      document.getElementById('prodImage').value = '';
+      document.getElementById('prodDesc').value = '';
+      document.getElementById('productModal').classList.add('active');
+    }
+
+    function openEditProductModal(id) {
+      const p = allProducts.find(i => i.id === id);
+      if (!p) return;
+      document.getElementById('prodEditId').value = p.id;
+      document.getElementById('productModalTitle').innerText = 'Edit Product';
+      document.getElementById('prodTitle').value = p.name;
+      document.getElementById('prodPrice').value = p.price;
+      document.getElementById('prodStock').value = p.stockQuantity;
+      document.getElementById('prodImage').value = p.imageUrl || '';
+      document.getElementById('prodDesc').value = p.description || '';
+      if (p.category) document.getElementById('prodCategory').value = p.category.id;
+      document.getElementById('productModal').classList.add('active');
+    }
+    function closeProductModal() { document.getElementById('productModal').classList.remove('active'); }
+
+    async function handleProductSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('prodEditId').value;
+      const payload = {
+        name: document.getElementById('prodTitle').value.trim(),
+        price: parseFloat(document.getElementById('prodPrice').value),
+        stockQuantity: parseInt(document.getElementById('prodStock').value, 10),
+        imageUrl: document.getElementById('prodImage').value.trim(),
+        description: document.getElementById('prodDesc').value.trim(),
+        categoryId: parseInt(document.getElementById('prodCategory').value, 10)
+      };
+
+      const url = id ? `/api/admin/products/${id}` : '/api/admin/products';
+      const method = id ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (res.ok) {
+          showToast(id ? 'Product updated.' : 'Product created.');
+          closeProductModal();
+          await loadProducts();
+          updateMetrics();
+        }
+      } catch(err) { showToast('Save error: ' + err.message, true); }
+    }
+
+    async function boostStock(id, delta) {
+      const p = allProducts.find(i => i.id === id);
+      if (!p) return;
+      const newStock = Math.max(0, p.stockQuantity + delta);
+      const payload = {
+        name: p.name,
+        price: p.price,
+        stockQuantity: newStock,
+        imageUrl: p.imageUrl,
+        description: p.description,
+        categoryId: p.category ? p.category.id : 1
+      };
+      try {
+        const res = await fetch(`/api/admin/products/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (res.ok) {
+          showToast(`Stock updated to ${newStock} for "${p.name}"`);
+          await loadProducts();
+          updateMetrics();
+        }
+      } catch(e) {}
+    }
+
+    async function deleteProduct(id, name) {
+      if (!confirm(`Delete product "${name}"?`)) return;
+      try {
+        const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast(`Deleted "${name}".`);
+          await loadProducts();
+          updateMetrics();
+        }
+      } catch(e) { showToast('Delete failed', true); }
+    }
+
+    // Metrics
+    function updateMetrics() {
+      const rev = allOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
+      document.getElementById('statRevenue').innerText = `₹${rev.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+      document.getElementById('statOrders').innerText = allOrders.length;
+      const pending = allOrders.filter(o => o.status === 'PENDING' || o.status === 'PROCESSING').length;
+      document.getElementById('statPendingOrders').innerText = `${pending} Pending Dispatch`;
+
+      document.getElementById('statUsers').innerText = allUsers.length;
+      const cust = allUsers.filter(u => u.role === 'USER').length;
+      const adm = allUsers.filter(u => u.role === 'ADMIN').length;
+      document.getElementById('statUserMeta').innerText = `${cust} Customer | ${adm} Admins`;
+
+      document.getElementById('statProducts').innerText = allProducts.length;
+      const low = allProducts.filter(p => p.stockQuantity < 15).length;
+      document.getElementById('statLowStock').innerText = `${low} Low Stock Alerts`;
+    }
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.className = isError ? 'toast-error' : '';
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+  </script>
+</body>
+</html>
