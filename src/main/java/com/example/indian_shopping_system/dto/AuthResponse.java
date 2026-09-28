@@ -14,4 +14,17 @@ public class AuthResponse {
     private String email;
     private Role role;
     private Long userId;
+    private String fullName;
+    private String phoneNumber;
+    private String address;
+
+    public AuthResponse(String message, String username, String email, Role role, Long userId) {
+        this.message = message;
+        this.username = username;
+        this.email = email;
+        this.role = role;
+        this.userId = userId;
+        this.fullName = username;
+    }
 }
+

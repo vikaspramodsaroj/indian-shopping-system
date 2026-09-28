@@ -22,30 +22,76 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final com.example.indian_shopping_system.repository.OrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
-        // 1. Seed Users (Admin & Customer)
-        if (userRepository.count() == 0) {
-            User admin = new User(
-                null,
-                "admin",
-                "admin@indianshopping.in",
-                passwordEncoder.encode("admin123"),
-                Role.ADMIN
-            );
+        // 1. Seed 3 Admins & Customers with complete registration profiles
+        User admin1 = null;
+        User customer1 = null;
+        User customer2 = null;
 
-            User customer = new User(
+        if (userRepository.count() == 0) {
+            // 4 Dedicated Admin Accounts (Confidential, not listed on public website)
+            User adminVikas = new User(
                 null,
                 "vikas",
-                "vikas@example.in",
-                passwordEncoder.encode("user123"),
-                Role.USER
+                "vikas@indianshopping.in",
+                passwordEncoder.encode("admin123"),
+                Role.ADMIN,
+                "Vikas Saroj (Admin)",
+                "+91 98111 22001",
+                "Headquarters, Sector 62, Noida, Uttar Pradesh 201309"
             );
 
-            userRepository.saveAll(List.of(admin, customer));
-            System.out.println(">>> Demo users created: admin (admin/admin123) and customer (vikas/user123)");
+            User adminAshika = new User(
+                null,
+                "ashika",
+                "ashika@indianshopping.in",
+                passwordEncoder.encode("admin123"),
+                Role.ADMIN,
+                "Ashika Sharma (Admin)",
+                "+91 98111 22002",
+                "Logistics Hub, Whitefield, Bengaluru, Karnataka 560066"
+            );
+
+            User adminSamrudhi = new User(
+                null,
+                "samrudhi",
+                "samrudhi@indianshopping.in",
+                passwordEncoder.encode("admin123"),
+                Role.ADMIN,
+                "Samrudhi Patel (Admin)",
+                "+91 98111 22003",
+                "Quality Fulfillment, Okhla Phase III, New Delhi 110020"
+            );
+
+            User adminSarvesh = new User(
+                null,
+                "sarvesh",
+                "sarvesh@indianshopping.in",
+                passwordEncoder.encode("admin123"),
+                Role.ADMIN,
+                "Sarvesh Verma (Admin)",
+                "+91 98111 22004",
+                "Central Tech Ops, Andheri East, Mumbai, Maharashtra 400069"
+            );
+
+            // Single Customer Account
+            User singleCustomer = new User(
+                null,
+                "customer",
+                "customer@indianshopping.in",
+                passwordEncoder.encode("user123"),
+                Role.USER,
+                "Priya Sharma (Verified Customer)",
+                "+91 98765 43210",
+                "Flat 302, Royal Palms, Bandra West, Mumbai, Maharashtra 400050"
+            );
+
+            userRepository.saveAll(List.of(adminVikas, adminAshika, adminSamrudhi, adminSarvesh, singleCustomer));
+            System.out.println(">>> 4 Admins (vikas, ashika, samrudhi, sarvesh) and 1 Customer (customer) initialized successfully!");
         }
 
         // 2. Seed Categories and Comprehensive Indian Catalog
@@ -296,5 +342,53 @@ public class DataInitializer implements CommandLineRunner {
 
             System.out.println(">>> 25 Authentic Indian shopping products populated successfully across 5 categories!");
         }
+
+        // 3. Seed Sample Orders for Single Customer
+        if (orderRepository.count() == 0) {
+            User singleCustomer = userRepository.findByUsername("customer").orElse(null);
+            List<Product> products = productRepository.findAll();
+
+            if (singleCustomer != null && !products.isEmpty()) {
+                Product p1 = products.get(0);
+                Product p2 = products.size() > 5 ? products.get(5) : products.get(0);
+
+                com.example.indian_shopping_system.model.Order o1 = new com.example.indian_shopping_system.model.Order();
+                o1.setUser(singleCustomer);
+                o1.setOrderDate(java.time.LocalDateTime.now().minusDays(2));
+                o1.setShippingAddress(singleCustomer.getAddress());
+                o1.setPaymentMethod("UPI (Google Pay)");
+                o1.setTransactionId("UPI-IND-8849204910");
+                o1.setStatus(com.example.indian_shopping_system.model.OrderStatus.DELIVERED);
+
+                com.example.indian_shopping_system.model.OrderItem i1 = new com.example.indian_shopping_system.model.OrderItem(null, o1, p1, 1, p1.getPrice());
+                com.example.indian_shopping_system.model.OrderItem i2 = new com.example.indian_shopping_system.model.OrderItem(null, o1, p2, 2, p2.getPrice());
+                o1.setItems(new java.util.ArrayList<>(List.of(i1, i2)));
+                o1.setTotalAmount(p1.getPrice().multiply(BigDecimal.valueOf(1)).add(p2.getPrice().multiply(BigDecimal.valueOf(2))));
+
+                orderRepository.save(o1);
+
+                if (products.size() > 15) {
+                    Product p3 = products.get(10);
+                    Product p4 = products.get(15);
+
+                    com.example.indian_shopping_system.model.Order o2 = new com.example.indian_shopping_system.model.Order();
+                    o2.setUser(singleCustomer);
+                    o2.setOrderDate(java.time.LocalDateTime.now().minusHours(6));
+                    o2.setShippingAddress(singleCustomer.getAddress());
+                    o2.setPaymentMethod("CARD (RuPay Prime)");
+                    o2.setTransactionId("RUPAY-TXN-5928172910");
+                    o2.setStatus(com.example.indian_shopping_system.model.OrderStatus.SHIPPED);
+
+                    com.example.indian_shopping_system.model.OrderItem i3 = new com.example.indian_shopping_system.model.OrderItem(null, o2, p3, 1, p3.getPrice());
+                    com.example.indian_shopping_system.model.OrderItem i4 = new com.example.indian_shopping_system.model.OrderItem(null, o2, p4, 2, p4.getPrice());
+                    o2.setItems(new java.util.ArrayList<>(List.of(i3, i4)));
+                    o2.setTotalAmount(p3.getPrice().multiply(BigDecimal.valueOf(1)).add(p4.getPrice().multiply(BigDecimal.valueOf(2))));
+
+                    orderRepository.save(o2);
+                }
+            }
+            System.out.println(">>> Sample orders seeded for single customer (customer)!");
+        }
     }
 }
+

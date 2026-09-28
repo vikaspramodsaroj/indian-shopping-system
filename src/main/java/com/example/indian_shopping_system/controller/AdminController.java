@@ -23,6 +23,24 @@ public class AdminController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final OrderService orderService;
+    private final com.example.indian_shopping_system.service.UserService userService;
+
+    @GetMapping("/users")
+    public ResponseEntity<List<com.example.indian_shopping_system.dto.UserDto>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<com.example.indian_shopping_system.dto.UserDto> createUser(
+            @Valid @RequestBody com.example.indian_shopping_system.dto.RegisterRequest request) {
+        return ResponseEntity.ok(userService.createUser(request));
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User with ID " + id + " has been deleted successfully.");
+    }
 
     @PostMapping("/products")
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto dto) {

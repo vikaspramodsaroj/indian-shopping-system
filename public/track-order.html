@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Track Your Order - BharatBazaar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --saffron: #ff9933;
+      --saffron-gradient: linear-gradient(135deg, #ff9933 0%, #ff5722 100%);
+      --emerald: #10b981;
+      --bg: #090d16;
+      --bg-card: #131b2e;
+      --border: #22304d;
+      --border-light: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 70px; }
+    
+    header {
+      background: rgba(19, 27, 46, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 1.4rem;
+    }
+    .logo-badge {
+      background: var(--saffron-gradient);
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .btn {
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-saffron { background: var(--saffron-gradient); color: white; }
+
+    main {
+      flex: 1;
+      padding: 1.2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .track-search-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.8rem 1.2rem;
+      text-align: center;
+    }
+    .track-search-box h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.4rem; }
+    .track-search-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem; }
+    .input-row {
+      display: flex;
+      gap: 0.6rem;
+      max-width: 500px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+    .input-row input {
+      flex: 1;
+      min-width: 200px;
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      outline: none;
+      font-size: 0.95rem;
+    }
+    .input-row input:focus { border-color: var(--saffron); }
+
+    /* Result Card */
+    .result-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: none;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .order-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.8rem;
+    }
+    .order-title { font-size: 1.3rem; font-weight: 800; }
+    .order-date { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* Stepper */
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin: 1.2rem 0;
+    }
+    .stepper::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: 10%;
+      right: 10%;
+      height: 3px;
+      background: var(--border);
+      z-index: 1;
+    }
+    .step-item {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 1;
+    }
+    .step-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 3px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+    .step-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .step-item.completed .step-circle {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+    }
+    .step-item.completed .step-label { color: #10b981; }
+    .step-item.active .step-circle {
+      background: var(--saffron);
+      border-color: var(--saffron);
+      color: white;
+      box-shadow: 0 0 12px rgba(255, 153, 51, 0.6);
+    }
+    .step-item.active .step-label { color: var(--saffron); }
+
+    /* Details */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.8rem;
+      background: #090d16;
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .detail-item span { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+    .detail-item p { font-size: 0.9rem; font-weight: 700; margin-top: 0.2rem; }
+
+    .items-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: #090d16;
+    }
+    .item-row:last-child { border-bottom: none; }
+
+    /* Mobile Bottom Bar */
+    .mobile-bottom-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(19, 27, 46, 0.98);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      padding: 0.5rem 0.8rem;
+      z-index: 100;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .mobile-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .mobile-tab.active, .mobile-tab:hover { color: var(--saffron); }
+    .mobile-tab span.icon { font-size: 1.25rem; }
+
+    /* Recent orders */
+    .recent-orders {
+      display: none;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .order-card-sm {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .order-card-sm:hover { border-color: var(--saffron); }
+
+    #toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ef4444;
+      color: white;
+      padding: 0.7rem 1.4rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 200;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-bottom-bar { display: flex; }
+      .stepper::before { top: 16px; }
+      .step-circle { width: 30px; height: 30px; font-size: 0.75rem; }
+      .step-label { font-size: 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="logo">
+      <span class="logo-badge">🇮🇳 Bharat</span>
+      <span>Bazaar</span>
+    </a>
+    <div style="display: flex; gap: 0.6rem; align-items: center;">
+      <a href="/" class="btn btn-outline">&larr; Store</a>
+      <a href="/login.html" class="btn btn-outline" id="navAuthBtn">Login</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="track-search-box">
+      <h1>📦 Live Order Tracking</h1>
+      <p>Enter your Order ID to monitor parcel dispatch & delivery in real time.</p>
+      <div class="input-row">
+        <input type="number" id="orderIdInput" placeholder="Enter Order ID (e.g. 1)" />
+        <button class="btn btn-saffron" onclick="searchOrder()">Track Order</button>
+      </div>
+    </div>
+
+    <!-- Logged in user recent orders -->
+    <div class="recent-orders" id="recentOrdersSection">
+      <h3 style="font-size: 1.1rem; font-weight: 700;">📑 My Orders</h3>
+      <div id="recentOrdersList" style="display: flex; flex-direction: column; gap: 0.6rem;"></div>
+    </div>
+
+    <!-- Tracking Result -->
+    <div class="result-card" id="resultCard">
+      <div class="order-meta">
+        <div>
+          <div class="order-title" id="resOrderTitle">Order #</div>
+          <div class="order-date" id="resOrderDate">Placed on ...</div>
+        </div>
+        <div>
+          <span style="font-size: 1.3rem; font-weight: 800; color: #34d399;" id="resOrderTotal">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- 5-Step Visual Stepper -->
+      <div class="stepper" id="stepper">
+        <div class="step-item" id="step1">
+          <div class="step-circle">1</div>
+          <div class="step-label">Placed</div>
+        </div>
+        <div class="step-item" id="step2">
+          <div class="step-circle">2</div>
+          <div class="step-label">Paid</div>
+        </div>
+        <div class="step-item" id="step3">
+          <div class="step-circle">3</div>
+          <div class="step-label">Processing</div>
+        </div>
+        <div class="step-item" id="step4">
+          <div class="step-circle">4</div>
+          <div class="step-label">Shipped</div>
+        </div>
+        <div class="step-item" id="step5">
+          <div class="step-circle">5</div>
+          <div class="step-label">Delivered</div>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="details-grid">
+        <div class="detail-item">
+          <span>Customer</span>
+          <p id="resCustomer">-</p>
+        </div>
+        <div class="detail-item">
+          <span>Payment</span>
+          <p id="resPayment">-</p>
+        </div>
+        <div class="detail-item">
+          <span>Txn Ref</span>
+          <p id="resTxnId" style="font-family: monospace; font-size: 0.8rem; word-break: break-all;">-</p>
+        </div>
+        <div class="detail-item" style="grid-column: 1 / -1;">
+          <span>Delivery Address</span>
+          <p id="resAddress">-</p>
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.05rem; font-weight: 700;">Purchased Products</h3>
+      <div class="items-box" id="resItemsBox"></div>
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Bar -->
+  <nav class="mobile-bottom-bar">
+    <a href="/" class="mobile-tab">
+      <span class="icon">🏪</span>
+      <span>Shop</span>
+    </a>
+    <a href="/track-order.html" class="mobile-tab active">
+      <span class="icon">📦</span>
+      <span>Track</span>
+    </a>
+    <a href="/login.html" class="mobile-tab">
+      <span class="icon">👤</span>
+      <span>Account</span>
+    </a>
+    <a href="/admin-login.html" class="mobile-tab">
+      <span class="icon">🛡️</span>
+      <span>Admin</span>
+    </a>
+  </nav>
+
+  <div id="toast"></div>
+
+  <script>
+    let currentUser = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const userStr = localStorage.getItem('bharat_user');
+      if (userStr) {
+        currentUser = JSON.parse(userStr);
+        document.getElementById('navAuthBtn').innerText = `👤 ${currentUser.username}`;
+        fetchUserOrders();
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const qId = urlParams.get('orderId');
+      if (qId) {
+        document.getElementById('orderIdInput').value = qId;
+        searchOrder();
+      }
+    });
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    }
+
+    async function fetchUserOrders() {
+      if (!currentUser || !currentUser.userId) return;
+      try {
+        const res = await fetch(`/api/orders/user/${currentUser.userId}`);
+        if (res.ok) {
+          const list = await res.json();
+          if (list && list.length > 0) {
+            document.getElementById('recentOrdersSection').style.display = 'flex';
+            const container = document.getElementById('recentOrdersList');
+            container.innerHTML = '';
+            list.forEach(o => {
+              const card = document.createElement('div');
+              card.className = 'order-card-sm';
+              card.onclick = () => {
+                document.getElementById('orderIdInput').value = o.orderId;
+                searchOrder();
+              };
+              card.innerHTML = `
+                <div>
+                  <div style="font-weight: 700; font-size: 0.9rem;">Order #${o.orderId} &bull; ${o.orderDate}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${o.items ? o.items.length : 0} item(s)</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                  <span style="font-weight: 700; color: #34d399; font-size: 0.9rem;">₹${o.totalAmount}</span>
+                  <span style="background: rgba(255,255,255,0.08); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase;">${o.status}</span>
+                </div>
+              `;
+              container.appendChild(card);
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Could not fetch user orders", e);
+      }
+    }
+
+    async function searchOrder() {
+      const id = document.getElementById('orderIdInput').value.trim();
+      if (!id) {
+        showToast("Please enter an Order ID");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/orders/${id}`);
+        if (!res.ok) {
+          showToast(`Order #${id} not found.`);
+          document.getElementById('resultCard').style.display = 'none';
+          return;
+        }
+
+        const order = await res.json();
+        renderOrderTracking(order);
+      } catch (err) {
+        showToast("Error retrieving order: " + err.message);
+      }
+    }
+
+    function renderOrderTracking(order) {
+      document.getElementById('resultCard').style.display = 'flex';
+      document.getElementById('resOrderTitle').innerText = `Order #${order.orderId}`;
+      document.getElementById('resOrderDate').innerText = `Placed on ${order.orderDate}`;
+      document.getElementById('resOrderTotal').innerText = `₹${Number(order.totalAmount).toLocaleString('en-IN')}`;
+      document.getElementById('resCustomer').innerText = `${order.username}`;
+      document.getElementById('resPayment').innerText = order.paymentMethod || 'COD';
+      document.getElementById('resTxnId').innerText = order.transactionId || 'N/A';
+      document.getElementById('resAddress').innerText = order.shippingAddress || 'Standard Delivery Address';
+
+      const steps = [
+        document.getElementById('step1'),
+        document.getElementById('step2'),
+        document.getElementById('step3'),
+        document.getElementById('step4'),
+        document.getElementById('step5')
+      ];
+
+      steps.forEach(s => s.className = 'step-item');
+
+      const status = (order.status || '').toUpperCase();
+
+      if (status === 'PENDING') {
+        steps[0].className = 'step-item active';
+      } else if (status === 'PAID') {
+        steps[0].className = 'step-item completed';
+        steps[1].className = 'step-item active';
+      } else if (status === 'PROCESSING') {
+        steps[0].className = 'step-item completed';
+        steps[1].className = 'step-item completed';
+        steps[2].className = 'step-item active';
+      } else if (status === 'SHIPPED') {
+        steps[0].className = 'step-item completed';
+        steps[1].className = 'step-item completed';
+        steps[2].className = 'step-item completed';
+        steps[3].className = 'step-item active';
+      } else if (status === 'DELIVERED') {
+        steps.forEach(s => s.className = 'step-item completed');
+      } else if (status === 'CANCELLED') {
+        steps[0].className = 'step-item completed';
+        steps[1].querySelector('.step-label').innerText = 'Cancelled';
+        steps[1].className = 'step-item active';
+      }
+
+      const box = document.getElementById('resItemsBox');
+      box.innerHTML = '';
+      if (order.items) {
+        order.items.forEach(it => {
+          const row = document.createElement('div');
+          row.className = 'item-row';
+          row.innerHTML = `
+            <div>
+              <div style="font-weight: 700; font-size: 0.9rem;">${it.productName}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">₹${it.price} × ${it.quantity}</div>
+            </div>
+            <div style="font-weight: 800; color: #34d399; font-size: 0.9rem;">₹${it.subtotal}</div>
+          `;
+          box.appendChild(row);
+        });
+      }
+    }
+  </script>
+</body>
+</html>

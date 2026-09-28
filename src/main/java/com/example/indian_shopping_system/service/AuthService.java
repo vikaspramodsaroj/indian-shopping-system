@@ -30,6 +30,10 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole() != null ? request.getRole() : Role.USER);
+        user.setFullName(request.getFullName() != null && !request.getFullName().isBlank() ? request.getFullName().trim() : request.getUsername());
+        user.setPhoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber().trim() : "");
+        user.setAddress(request.getAddress() != null ? request.getAddress().trim() : "");
+        user.setCreatedAt(java.time.LocalDateTime.now());
 
         User savedUser = userRepository.save(user);
         return new AuthResponse(
@@ -37,7 +41,10 @@ public class AuthService {
             savedUser.getUsername(),
             savedUser.getEmail(),
             savedUser.getRole(),
-            savedUser.getId()
+            savedUser.getId(),
+            savedUser.getFullName(),
+            savedUser.getPhoneNumber(),
+            savedUser.getAddress()
         );
     }
 
@@ -51,11 +58,15 @@ public class AuthService {
         }
 
         return new AuthResponse(
-            "Login successful! Welcome back, " + user.getUsername(),
+            "Login successful! Welcome back, " + (user.getFullName() != null ? user.getFullName() : user.getUsername()),
             user.getUsername(),
             user.getEmail(),
             user.getRole(),
-            user.getId()
+            user.getId(),
+            user.getFullName(),
+            user.getPhoneNumber(),
+            user.getAddress()
         );
     }
 }
+
